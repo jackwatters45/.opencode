@@ -6,7 +6,6 @@ Global [opencode](https://opencode.ai) configuration.
 
 ```
 ├── opencode.json    # Main config (model, plugins, MCPs)
-├── agent/           # Custom agent definitions
 └── skill/           # Custom skills
 ```
 
