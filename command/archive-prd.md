@@ -4,93 +4,64 @@ description: Archive completed PRD and progress to versioned folder
 
 # Archive PRD
 
-Archive the current PRD and progress files to a versioned folder, then reset for the next development cycle.
+Archive current PRD and progress to a versioned folder, then reset for next cycle.
 
 ## Arguments
 
-`$ARGUMENTS` should be a version string, e.g., `v0.1.0`, `v1.0.0`, `2024-Q1`
-
-If no argument provided, read version from `docs/prd.json` and use that.
+`$ARGUMENTS` = version string (e.g., `v0.1.0`, `v1.0.0`, `2024-Q1`)
 
 ## Your Task
 
-1. **Validate current PRD is complete**
+1. **Validate PRD completion**
    ```bash
-   cat docs/prd.json
+   cat plans/prd.json
    ```
    - Count features where `passes: false`
-   - If any features are incomplete, WARN the user and ask for confirmation before archiving
-   - Show: "X of Y features passing. Archive anyway? (some features incomplete)"
+   - If incomplete, WARN and ask for confirmation
+   - Show: "X of Y features passing. Archive anyway?"
 
-2. **Determine version string**
+2. **Determine version**
    - Use `$ARGUMENTS` if provided
-   - Otherwise use `version` field from `docs/prd.json`
-   - Validate it's a reasonable version string
+   - Otherwise ask user for version string
 
-3. **Create archive directory**
+3. **Create archive**
    ```bash
-   mkdir -p docs/archive/$VERSION
+   mkdir -p plans/archive/$VERSION
+   cp plans/prd.json plans/archive/$VERSION/
+   cp plans/progress.txt plans/archive/$VERSION/
    ```
 
-4. **Copy files to archive**
-   ```bash
-   cp docs/prd.json docs/archive/$VERSION/
-   cp docs/progress.txt docs/archive/$VERSION/
+4. **Add summary to archived progress**
+   Append to `plans/archive/$VERSION/progress.txt`:
    ```
-
-5. **Add completion summary to archived progress**
-   Append to `docs/archive/$VERSION/progress.txt`:
-   ```markdown
    ---
-
-   ## Archive Summary
-
-   - Archived: [ISO timestamp]
-   - Version: [version]
-   - Features: X/Y passing
-   - Duration: [if calculable from dates in progress]
+   Archived: [ISO timestamp]
+   Version: [version]
+   Features: X/Y passing
    ```
 
-6. **Reset current PRD for next cycle**
-   Create new `docs/prd.json`:
+5. **Reset PRD**
+   Create new `plans/prd.json`:
    ```json
-   {
-     "project": "[same project name]",
-     "version": "[incremented version or placeholder]",
-     "created": "[ISO timestamp]",
-     "previous_version": "[archived version]",
-     "features": []
-   }
+   []
    ```
 
-7. **Reset progress file**
-   Create new `docs/progress.txt`:
-   ```markdown
-   # Ralph Progress Log
-
-   Project: [project name]
-   Version: [new version]
+6. **Reset progress**
+   Create new `plans/progress.txt`:
+   ```
+   Ralph Progress Log
    Started: [ISO timestamp]
-   Previous: See [docs/archive/$VERSION/progress.txt](archive/$VERSION/progress.txt)
+   Previous: plans/archive/$VERSION/
 
-   ## Current Status
-
-   - Features defined: 0
-   - Next step: Add features to docs/prd.json
-
-   ## Session History
-
+   --- Session History ---
    ```
 
-8. **Git commit the archive**
+7. **Git commit**
    ```bash
-   git add docs/archive/$VERSION docs/prd.json docs/progress.txt
+   git add plans/
    git commit -m "chore: archive PRD $VERSION"
    ```
 
-9. **Report to user**
-   Show:
-   - Archive location: `docs/archive/$VERSION/`
-   - Files archived: prd.json, progress.txt
-   - Current PRD reset and ready for new features
-   - Suggest: "Add new features to docs/prd.json for the next release"
+8. **Report**
+   - Archive location: `plans/archive/$VERSION/`
+   - PRD reset and ready for new features

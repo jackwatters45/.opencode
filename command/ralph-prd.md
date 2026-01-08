@@ -4,55 +4,47 @@ description: PRD-aware Ralph Loop - incremental feature development until all fe
 
 # Ralph PRD Loop
 
-You are starting a PRD-aware Ralph Loop - an incremental development loop that implements features ONE AT A TIME until all features in the PRD pass.
+Incremental development loop that implements features ONE AT A TIME until all features in the PRD pass.
 
 ## How This Works
 
-1. Read `docs/prd.json` to get the feature list
-2. Read `docs/progress.txt` to understand previous work
-3. Select ONE failing feature (highest priority, dependencies satisfied)
-4. Implement and verify that ONE feature
-5. Update PRD and progress file
-6. Output `<promise>DONE</promise>` ONLY when ALL features pass
+1. Read `plans/prd.json` (flat array of features)
+2. Read `plans/progress.txt` for context
+3. Select ONE failing feature
+4. Implement and verify
+5. Update PRD and progress
+6. Output `<promise>DONE</promise>` when ALL features pass
 
-## Phase 1: Get Your Bearings (EVERY iteration)
-
-Execute these commands FIRST:
+## Phase 1: Get Bearings (EVERY iteration)
 
 ```bash
-pwd
-cat docs/progress.txt 2>/dev/null || echo "No progress file"
+cat plans/progress.txt 2>/dev/null || echo "No progress file"
 git log --oneline -5 2>/dev/null || echo "No git history"
-cat docs/prd.json
+cat plans/prd.json
 ```
 
-Count features:
-- Total features
-- Passing features (`"passes": true`)
-- Failing features (`"passes": false`)
+Count: total features, passing (`passes: true`), failing (`passes: false`)
 
 ## Phase 2: Check Completion
 
-If ALL features have `"passes": true`:
-1. Update docs/progress.txt with final status
+If ALL features have `passes: true`:
+1. Update plans/progress.txt with final status
 2. Output: `<promise>DONE</promise>`
-3. Stop working
+3. Stop
 
 ## Phase 3: Select ONE Feature
 
-From failing features, select the SINGLE highest priority:
+From failing features, select ONE:
+1. **Dependencies**: Only select features whose dependencies all pass
+2. **Your judgment**: Pick the highest-priority feature to implement next
 
-1. **Priority order**: high > medium > low
-2. **Dependencies**: Only select if all dependencies pass
-3. **Document order**: If tied, pick first in array
+**CRITICAL: ONE feature only. Not two. Not "while I'm here". ONE.**
 
-**CRITICAL: Work on exactly ONE feature. Not two. Not "while I'm here". ONE.**
-
-Announce your selection:
+Announce:
 ```
-Selected feature: [id]
+Selected: [id]
+Category: [category]
 Description: [description]
-Reason: [why this one]
 ```
 
 ## Phase 4: Implement
@@ -62,133 +54,80 @@ Reason: [why this one]
    ./.ralph/init.sh 2>/dev/null || true
    ```
 
-2. Implement the feature following existing code patterns
+2. Implement following existing code patterns
 
-3. **Run CI checks (REQUIRED before marking complete):**
+3. **CI checks (REQUIRED):**
    ```bash
    bun run typecheck
    bun run test
    ```
-   - Both MUST pass before proceeding
-   - If typecheck fails: fix type errors first
-   - If tests fail: fix or update tests
+   Both MUST pass before proceeding.
 
-4. Run feature-specific verification:
-   - Follow the `verification.steps` in the PRD
-   - If `verification.command` exists, run it
-   - Test manually if needed
+4. Verify using the feature's `steps` array
 
 ## Phase 5: Update State
 
-### If feature PASSES all checks (typecheck + tests + verification):
+### If PASSES (typecheck + tests + verification):
 
-1. Update PRD - mark feature as passing:
-   ```bash
-   # Use jq or manual edit to set passes: true in docs/prd.json
-   ```
+1. Update PRD - set `passes: true` for this feature
 
-2. Append to docs/progress.txt:
+2. Append to plans/progress.txt:
    ```
    [id] COMPLETE
    Summary: [what was implemented]
    Files: [changed files]
-   Checks: typecheck pass, tests pass
-   Verified: [how verified]
    ```
 
-3. Git commit (if git repo):
+3. Git commit:
    ```bash
    git add -A
    git commit -m "feat([id]): [brief description]"
    ```
 
-### If feature FAILS (typecheck, tests, or verification):
+### If FAILS:
 
-1. **STOP trying random fixes** after 2-3 attempts
-2. Revert changes:
-   ```bash
-   git checkout -- . 2>/dev/null || true
-   ```
-3. Document failure in docs/progress.txt:
+1. **STOP** after 2-3 attempts
+2. Revert: `git checkout -- .`
+3. Document in plans/progress.txt:
    ```
    [id] FAILED
    Attempted: [what you tried]
-   Checks: typecheck [pass/fail], tests [pass/fail]
    Error: [what went wrong]
-   - Next approach: [suggestion for next iteration]
+   Next: [suggestion for next iteration]
    ```
 4. Do NOT mark as passing
-5. Let the loop continue to next iteration
+5. Loop continues to next iteration
 
 ## Phase 6: Loop Control
 
-After updating state:
-
-1. Re-read PRD to check if ALL features now pass
-2. If ALL pass: output `<promise>DONE</promise>`
-3. If NOT all pass: the loop will auto-continue
+1. Re-read PRD
+2. If ALL pass: `<promise>DONE</promise>`
+3. If NOT all pass: loop auto-continues
 
 ## Git Strategy
 
-**Commit after EVERY successful feature.** This is critical for:
-- Recovery (can revert to last working state)
-- Progress tracking (git log shows feature completion)
-- Handoff between iterations (next iteration sees clean state)
-
-### Commit Convention
+**Commit after EVERY successful feature.**
 
 ```
-feat([feature-id]): [brief description]
-
-- Implements [what]
-- Verified by [how]
+feat([id]): [brief description]
 ```
-
-Example:
-```
-feat(auth-001): implement login form
-
-- Added login page with email/password fields
-- Added /api/auth/login endpoint
-- Verified: manual test, redirects to dashboard
-```
-
-### When to Commit
 
 | Situation | Action |
 |-----------|--------|
-| Feature passes verification | `git add -A && git commit` |
-| Feature fails | `git checkout -- .` (revert, no commit) |
-| Partial progress, context ending | Commit WIP with clear message |
-| PRD/progress.txt updated | Include in feature commit |
+| Feature passes | `git add -A && git commit` |
+| Feature fails | `git checkout -- .` (revert) |
+| Context ending | Commit WIP with clear message |
 
-### Recovery via Git
-
-If you break something:
+Recovery:
 ```bash
-git status                    # See what changed
-git diff                      # Review changes
-git checkout -- .             # Revert ALL uncommitted changes
-git log --oneline -5          # Find last good commit
-git checkout [commit] -- .    # Restore specific commit (nuclear option)
+git checkout -- .             # Revert uncommitted
+git log --oneline -5          # Find last good
 ```
 
 ## Rules
 
-- **ONE feature per iteration** - strict incrementalism prevents context exhaustion
-- **CI must pass** - `bun run typecheck` and `bun run test` before marking complete
-- **Commit after each feature** - git is your checkpoint system
-- **Verify before marking complete** - follow PRD verification steps
-- **Revert if stuck** - don't pile fixes on broken code
-- **Document everything** - docs/progress.txt is memory between iterations
-- **Read before writing** - never modify files you haven't read
-- **Match existing patterns** - follow codebase conventions
-
-## Arguments
-
-Parse from: `$ARGUMENTS`
-
-Format: `"task description" [--max-iterations=N]`
-
-The task description provides context but the PRD defines actual features.
-Default max iterations: 100
+- **ONE feature per iteration**
+- **CI must pass** - typecheck + tests
+- **Commit per feature**
+- **Revert if stuck**
+- **Document everything** in progress.txt
