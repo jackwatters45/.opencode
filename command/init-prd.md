@@ -8,27 +8,27 @@ Create the PRD tracking files for incremental feature development.
 
 ## Your Task
 
-1. Detect project name from `package.json` (`name` field) or use current directory name
+1. **Check for existing files FIRST:**
+   ```bash
+   ls plans/prd.json plans/progress.txt 2>/dev/null
+   ```
+   - If `plans/prd.json` exists: **DO NOT overwrite** - tell user PRD already exists
+   - If `plans/progress.txt` exists: **DO NOT overwrite** - tell user progress file already exists
+   - If `.ralph/init.sh` exists: skip, don't overwrite
+   - Only create files that don't exist
+   - If all files exist, just report "Ralph PRD already initialized" and stop
 
-2. Create `docs/` directory if it doesn't exist
+2. Create `plans/` directory if it doesn't exist
 
-3. Create `docs/prd.json` with this structure:
+3. Create `plans/prd.json` as a flat array:
 ```json
-{
-  "project": "[detected project name]",
-  "version": "0.1.0",
-  "created": "ISO timestamp",
-  "features": []
-}
+[]
 ```
 
-4. Create `docs/progress.txt`:
+4. Create `plans/progress.txt`:
 ```
 Ralph Progress Log
-Project initialized: [ISO timestamp]
-
-Status: 0 features defined
-Next: Add features to docs/prd.json
+Initialized: [ISO timestamp]
 
 --- Session History ---
 ```
@@ -39,52 +39,50 @@ Next: Add features to docs/prd.json
 set -euo pipefail
 echo "Starting development environment..."
 # Customize for your project:
-# - npm run dev
+# - bun run dev
 # - docker-compose up -d
-# - source .venv/bin/activate
 echo "Development environment ready."
 ```
 
-6. **Check for existing files FIRST:**
-   ```bash
-   ls docs/prd.json docs/progress.txt 2>/dev/null
-   ```
-   - If `docs/prd.json` exists: **DO NOT overwrite** - tell user PRD already exists
-   - If `docs/progress.txt` exists: **DO NOT overwrite** - tell user progress file already exists
-   - If `.ralph/init.sh` exists: skip, don't overwrite
-   - Only create files that don't exist
-   - If all files exist, just report "Ralph PRD already initialized" and stop
-
-7. After creation, show the user:
-   - `docs/prd.json` - add your features here (committed to VCS)
-   - `docs/progress.txt` - session history (committed to VCS)
+6. After creation, show the user:
+   - `plans/prd.json` - add your features here
+   - `plans/progress.txt` - session history
    - `.ralph/init.sh` - customize for your dev environment
    - **Ensure `bun run typecheck` and `bun run test` work** (required for CI checks)
    - Start with: `/ralph-prd "implement all features"`
 
 ## PRD Feature Structure
 
-Each feature in the `features` array should have:
+The PRD is a flat JSON array. Each feature:
 ```json
 {
-  "id": "feature-001",
-  "category": "category-name",
-  "priority": "high|medium|low",
-  "description": "What this feature does",
+  "id": "auth-001",
+  "category": "user-flow",
+  "description": "User can log in with email and password",
   "passes": false,
-  "dependencies": ["other-feature-id"],
-  "verification": {
-    "steps": ["Step 1", "Step 2"],
-    "automated": false,
-    "command": null
-  }
+  "steps": [
+    "Navigate to /login",
+    "Enter valid credentials",
+    "Verify redirect to dashboard"
+  ]
 }
 ```
 
-## Example Features
+### Fields
 
-Suggest example features based on project type:
+| Field | Required | Description |
+|-------|----------|-------------|
+| `id` | Yes | Unique identifier (used in commits) |
+| `category` | Yes | Type: `user-flow`, `error`, `behavior`, `api`, `ui` |
+| `description` | Yes | What this feature does |
+| `passes` | Yes | `false` until verified, then `true` |
+| `steps` | Yes | Verification steps |
+| `dependencies` | No | Array of feature IDs that must pass first |
 
-**Web apps:** Authentication, CRUD, API endpoints
-**CLI tools:** Argument parsing, core functionality, help output
-**Libraries:** Core API, type definitions, documentation
+### Categories
+
+- `user-flow` - Happy path user interactions
+- `error` - Error handling and edge cases
+- `behavior` - Internal behavior/logic
+- `api` - API endpoints
+- `ui` - User interface components

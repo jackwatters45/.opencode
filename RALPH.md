@@ -4,51 +4,58 @@ PRD-based incremental feature development for oh-my-opencode's Ralph Loop.
 
 ## Commands
 
-- `/init-prd` - Initialize PRD structure (creates docs/prd.json, docs/progress.txt, .ralph/init.sh)
-- `/ralph-prd "task"` - Run PRD-aware development loop until all features pass
-- `/archive-prd [version]` - Archive completed PRD to docs/archive/{version}/
+- `/init-prd` - Initialize PRD structure
+- `/ralph-prd "task"` - Run PRD-aware development loop
+- `/archive-prd [version]` - Archive completed PRD
 
-## File Structure (per-project)
+## File Structure
 
 ```
 project/
-├── docs/
-│   ├── prd.json         # Feature list with pass/fail tracking
-│   ├── progress.txt      # Session history and memory
+├── plans/
+│   ├── prd.json         # Feature list (flat array)
+│   ├── progress.txt     # Session history
 │   └── archive/         # Completed PRDs by version
 └── .ralph/
-    └── init.sh          # Project-specific dev setup
+    └── init.sh          # Project dev setup
 ```
 
-## PRD Feature Format
+## PRD Format
 
+Flat JSON array:
 ```json
-{
-  "id": "feature-001",
-  "category": "category-name",
-  "priority": "high|medium|low",
-  "description": "What this feature does",
-  "passes": false,
-  "dependencies": ["other-feature-id"],
-  "verification": {
-    "steps": ["Step 1", "Step 2"],
-    "automated": false,
-    "command": null
+[
+  {
+    "id": "auth-001",
+    "category": "user-flow",
+    "description": "User can log in",
+    "passes": false,
+    "steps": ["Navigate to /login", "Enter credentials", "Verify redirect"]
   }
-}
+]
 ```
 
-## Core Rules
+### Categories
 
-1. **ONE feature per iteration** - never implement multiple features at once
-2. **CI must pass** - run `bun run typecheck` and `bun run test` before marking complete
-3. **Commit per feature** - git commit after each successful feature
-4. **Revert on failure** - `git checkout -- .` if stuck, document in progress.txt
-5. **Document everything** - progress.txt is memory between iterations
+- `user-flow` - Happy path interactions
+- `error` - Error handling
+- `behavior` - Internal logic
+- `api` - API endpoints
+- `ui` - UI components
+
+## Rules
+
+1. **ONE feature per iteration**
+2. **CI must pass** - `bun run typecheck && bun run test`
+3. **Commit per feature**
+4. **Revert on failure** - `git checkout -- .`
+5. **Document in progress.txt**
 
 ## Workflow
 
-1. `/init-prd` → creates structure
-2. Edit `docs/prd.json` with features
-3. `/ralph-prd "implement"` → loops until all pass
-4. `/archive-prd v1.0.0` → archives, resets for next cycle
+```
+/init-prd              # Create plans/prd.json, plans/progress.txt
+# Edit plans/prd.json with features
+/ralph-prd "implement" # Loop until all pass
+/archive-prd v1.0.0    # Archive, reset for next cycle
+```
