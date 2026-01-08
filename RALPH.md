@@ -6,6 +6,7 @@ PRD-based incremental feature development for oh-my-opencode's Ralph Loop.
 
 - `/init-prd` - Initialize PRD structure
 - `/ralph-prd "task"` - Run PRD-aware development loop
+- `/ralph-test` - Run test coverage loop (one test per iteration)
 - `/archive-prd [version]` - Archive completed PRD
 
 ## File Structure
@@ -14,7 +15,8 @@ PRD-based incremental feature development for oh-my-opencode's Ralph Loop.
 project/
 ├── plans/
 │   ├── prd.json         # Feature list (flat array)
-│   ├── progress.txt     # Session history
+│   ├── progress.txt     # PRD session history
+│   ├── test-progress.txt # Test coverage history
 │   └── archive/         # Completed PRDs by version
 └── .ralph/
     └── init.sh          # Project dev setup
@@ -49,5 +51,6 @@ Flat JSON array:
 /init-prd              # Create plans/prd.json, plans/progress.txt
 # Edit plans/prd.json with features
 /ralph-prd "implement" # Loop until all pass
+/ralph-test            # Loop until coverage target (default 80%)
 /archive-prd v1.0.0    # Archive, reset for next cycle
 ```
