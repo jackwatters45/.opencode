@@ -34,10 +34,9 @@ If ALL features have `passes: true`:
 
 ## Phase 3: Select ONE Feature
 
-From failing features, select based on:
-1. **Category priority**: `error` > `user-flow` > `behavior` > `api` > `ui`
-2. **Dependencies**: Only if all dependencies pass
-3. **Array order**: If tied, pick first
+From failing features, select ONE:
+1. **Dependencies**: Only select features whose dependencies all pass
+2. **Your judgment**: Pick the highest-priority feature to implement next
 
 **CRITICAL: ONE feature only. Not two. Not "while I'm here". ONE.**
 

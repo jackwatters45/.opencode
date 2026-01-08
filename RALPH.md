@@ -35,14 +35,6 @@ Flat JSON array:
 ]
 ```
 
-### Categories
-
-- `user-flow` - Happy path interactions
-- `error` - Error handling
-- `behavior` - Internal logic
-- `api` - API endpoints
-- `ui` - UI components
-
 ## Rules
 
 1. **ONE feature per iteration**

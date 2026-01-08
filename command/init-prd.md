@@ -73,16 +73,10 @@ The PRD is a flat JSON array. Each feature:
 | Field | Required | Description |
 |-------|----------|-------------|
 | `id` | Yes | Unique identifier (used in commits) |
-| `category` | Yes | Type: `user-flow`, `error`, `behavior`, `api`, `ui` |
+| `category` | Yes | Grouping for organization |
 | `description` | Yes | What this feature does |
 | `passes` | Yes | `false` until verified, then `true` |
 | `steps` | Yes | Verification steps |
 | `dependencies` | No | Array of feature IDs that must pass first |
 
-### Categories
 
-- `user-flow` - Happy path user interactions
-- `error` - Error handling and edge cases
-- `behavior` - Internal behavior/logic
-- `api` - API endpoints
-- `ui` - User interface components
