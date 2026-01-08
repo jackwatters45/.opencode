@@ -6,7 +6,7 @@ Global [opencode](https://opencode.ai) configuration.
 
 ```
 ├── opencode.json    # Main config (model, plugins, MCPs)
-└── skill/           # Custom skills
+└── command/         # Custom slash commands (Ralph Loop, PRD workflows)
 ```
 
 ## Setup
