@@ -68,7 +68,27 @@ Current coverage: X%
    bun run typecheck
    ```
 
-## Phase 5: Update State
+## Phase 5: Update AGENTS.md (if applicable)
+
+Before committing, check if you discovered reusable patterns worth preserving:
+
+**Update AGENTS.md when you learn:**
+- "Tests for X require Y setup"
+- "This module needs mocking pattern Z"
+- "Coverage for this area requires dev server running"
+
+**Don't add:**
+- Test-specific details
+- Temporary notes
+- Info that only matters for this session
+
+**Where to update:**
+- Root-level AGENTS.md for project-wide patterns
+- Package-level AGENTS.md for package-specific patterns
+
+Use judgment — update where it makes sense for the pattern scope.
+
+## Phase 6: Update State
 
 ### If test PASSES and coverage increased:
 
@@ -77,7 +97,12 @@ Current coverage: X%
    test([file]): [describe user behavior tested]
    Coverage: X% -> Y%
    [file]: A% -> B%
+   Gotchas: [session-specific learnings, if any]
    ```
+   
+   **Gotchas** are session-specific learnings:
+   - "Had to mock X because Y"
+   - "This test requires Z setup first"
 
 2. Git commit:
    ```bash
@@ -94,10 +119,11 @@ Current coverage: X%
    FAILED: [file]
    Attempted: [what you tried]
    Error: [what went wrong]
+   Gotchas: [what you learned from the failure]
    ```
 4. Try a different file/feature next iteration
 
-## Phase 6: Loop Control
+## Phase 7: Loop Control
 
 1. Run coverage again
 2. If target reached: `<promise>DONE</promise>`
